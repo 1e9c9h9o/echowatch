@@ -191,6 +191,7 @@ function buildMapStyle(date, layerKey = state.currentLayer) {
         type: 'raster',
         tiles: [tileUrl],
         tileSize: 256,
+        maxzoom: layerConfig.maxZoom, // Tiles only available up to this zoom
         attribution: '© NASA GIBS'
       },
       'labels': {
@@ -212,7 +213,7 @@ function buildMapStyle(date, layerKey = state.currentLayer) {
         type: 'raster',
         source: 'viirs',
         minzoom: 0,
-        maxzoom: layerConfig.maxZoom,
+        maxzoom: 22, // Render at all zooms (tiles upscaled beyond source maxzoom)
         paint: {
           'raster-opacity': 0.9
         }
@@ -273,6 +274,7 @@ function updateLayer() {
     type: 'raster',
     tiles: [tileUrl],
     tileSize: 256,
+    maxzoom: layerConfig.maxZoom, // Tiles only available up to this zoom
     attribution: '© NASA GIBS'
   });
 
@@ -282,7 +284,7 @@ function updateLayer() {
     type: 'raster',
     source: 'viirs',
     minzoom: 0,
-    maxzoom: layerConfig.maxZoom,
+    maxzoom: 22, // Render at all zooms (upscaled beyond source maxzoom)
     paint: {
       'raster-opacity': 0.9
     }
@@ -316,6 +318,7 @@ function updateAfterMapLayer() {
     type: 'raster',
     tiles: [tileUrl],
     tileSize: 256,
+    maxzoom: layerConfig.maxZoom, // Tiles only available up to this zoom
     attribution: '© NASA GIBS'
   });
 
@@ -324,7 +327,7 @@ function updateAfterMapLayer() {
     type: 'raster',
     source: 'viirs',
     minzoom: 0,
-    maxzoom: layerConfig.maxZoom,
+    maxzoom: 22, // Render at all zooms (upscaled beyond source maxzoom)
     paint: {
       'raster-opacity': 0.9
     }
