@@ -11,7 +11,7 @@ const CONFIG = {
   // NASA GIBS layer definitions
   layers: {
     nightlights: {
-      id: 'VIIRS_SNPP_DayNightBand_At_Sensor_Radiance',
+      id: 'VIIRS_SNPP_DayNightBand_ENCC',
       name: 'Night Lights',
       maxZoom: 8
     },
