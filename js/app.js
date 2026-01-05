@@ -11,14 +11,16 @@ const CONFIG = {
   // NASA GIBS layer definitions
   layers: {
     nightlights: {
-      id: 'VIIRS_SNPP_DayNightBand_ENCC',
+      id: 'VIIRS_SNPP_DayNightBand',
       name: 'Night Lights',
-      maxZoom: 8
+      maxZoom: 7,
+      tileMatrixSet: 'GoogleMapsCompatible_Level7'
     },
     blackmarble: {
       id: 'VIIRS_Black_Marble',
       name: 'Black Marble',
       maxZoom: 8,
+      tileMatrixSet: 'GoogleMapsCompatible_Level8',
       staticDate: '2016-01-01' // Annual composite, not daily
     }
   },
@@ -136,8 +138,8 @@ let state = {
 /**
  * Build GIBS tile URL for a given layer and date
  */
-function buildGIBSUrl(layerId, date) {
-  return `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${layerId}/default/${date}/GoogleMapsCompatible_Level8/{z}/{y}/{x}.png`;
+function buildGIBSUrl(layerId, date, tileMatrixSet = 'GoogleMapsCompatible_Level8') {
+  return `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${layerId}/default/${date}/${tileMatrixSet}/{z}/{y}/{x}.png`;
 }
 
 /**
@@ -173,7 +175,8 @@ function buildMapStyle(date, layerKey = state.currentLayer) {
   const layerConfig = CONFIG.layers[layerKey];
   // Use static date for layers like Black Marble that are composites
   const effectiveDate = layerConfig.staticDate || date;
-  const tileUrl = buildGIBSUrl(layerConfig.id, effectiveDate);
+  const tileMatrixSet = layerConfig.tileMatrixSet || 'GoogleMapsCompatible_Level8';
+  const tileUrl = buildGIBSUrl(layerConfig.id, effectiveDate, tileMatrixSet);
 
   return {
     version: 8,
@@ -254,7 +257,8 @@ function initMap() {
 function updateLayer() {
   const layerConfig = CONFIG.layers[state.currentLayer];
   const effectiveDate = layerConfig.staticDate || state.currentDate;
-  const tileUrl = buildGIBSUrl(layerConfig.id, effectiveDate);
+  const tileMatrixSet = layerConfig.tileMatrixSet || 'GoogleMapsCompatible_Level8';
+  const tileUrl = buildGIBSUrl(layerConfig.id, effectiveDate, tileMatrixSet);
 
   // Remove existing layer and source
   if (state.map.getLayer('viirs')) {
@@ -298,7 +302,8 @@ function updateAfterMapLayer() {
 
   const layerConfig = CONFIG.layers[state.currentLayer];
   const effectiveDate = layerConfig.staticDate || state.afterDate;
-  const tileUrl = buildGIBSUrl(layerConfig.id, effectiveDate);
+  const tileMatrixSet = layerConfig.tileMatrixSet || 'GoogleMapsCompatible_Level8';
+  const tileUrl = buildGIBSUrl(layerConfig.id, effectiveDate, tileMatrixSet);
 
   if (state.afterMap.getLayer('viirs')) {
     state.afterMap.removeLayer('viirs');
