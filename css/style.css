@@ -1,0 +1,899 @@
+/**
+ * ECHO.WATCH Styles
+ * Ulm School of Design inspired - functional, minimal, systematic
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* ========================================
+   Design Tokens
+   ======================================== */
+
+:root {
+  /* Colors - minimal palette */
+  --white: #ffffff;
+  --gray-50: #f5f5f5;
+  --gray-100: #e8e8e8;
+  --gray-200: #d4d4d4;
+  --gray-400: #a3a3a3;
+  --gray-600: #525252;
+  --gray-800: #262626;
+  --black: #0a0a0a;
+  
+  /* Accent - used sparingly */
+  --red: #dc2626;
+  --blue: #2563eb;
+  
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+  
+  /* Layout */
+  --sidebar-width: 360px;
+  --header-height: 73px;
+}
+
+/* ========================================
+   Reset & Base
+   ======================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--white);
+  color: var(--black);
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+a {
+  color: var(--gray-600);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--black);
+}
+
+ul {
+  list-style: none;
+}
+
+/* ========================================
+   Header
+   ======================================== */
+
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 20px var(--space-6);
+  border-bottom: 1px solid var(--gray-100);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--white);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.logo-mark {
+  width: 32px;
+  height: 32px;
+  background: var(--black);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-mark svg {
+  width: 18px;
+  height: 18px;
+  fill: var(--white);
+}
+
+.logo-text {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.search-box {
+  flex: 0 0 240px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--gray-200);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+  background: var(--white);
+  transition: border-color 0.15s ease;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: var(--gray-400);
+}
+
+.search-box input::placeholder {
+  color: var(--gray-400);
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.date-control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.date-control label {
+  font-size: 13px;
+  color: var(--gray-600);
+}
+
+.date-control input {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--gray-200);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.layer-toggle {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.layer-btn {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.layer-btn:hover {
+  border-color: var(--gray-400);
+}
+
+.layer-btn.active {
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--black);
+}
+
+/* ========================================
+   Main Layout
+   ======================================== */
+
+main {
+  padding-top: var(--header-height);
+  display: grid;
+  grid-template-columns: 1fr var(--sidebar-width);
+  height: 100vh;
+}
+
+#map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#map, #map-after {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#map-after {
+  display: none;
+}
+
+/* Compare mode: side-by-side */
+#map-wrapper.compare-side-by-side {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+#map-wrapper.compare-side-by-side #map,
+#map-wrapper.compare-side-by-side #map-after {
+  position: relative;
+  display: block;
+}
+
+#map-wrapper.compare-side-by-side #map {
+  border-right: 1px solid var(--gray-200);
+}
+
+/* Compare mode: swipe (uses maplibre-gl-compare) */
+#map-wrapper.compare-swipe #map-after {
+  display: block;
+}
+
+/* ========================================
+   Sidebar
+   ======================================== */
+
+.sidebar {
+  padding: var(--space-5);
+  border-left: 1px solid var(--gray-100);
+  overflow-y: auto;
+  background: var(--white);
+}
+
+.sidebar h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+
+.sidebar > p {
+  font-size: 14px;
+  color: var(--gray-600);
+  line-height: 1.6;
+  margin-bottom: var(--space-5);
+}
+
+.info-block {
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.info-block:last-of-type {
+  border-bottom: none;
+}
+
+.info-block h3 {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-400);
+  margin-bottom: var(--space-3);
+}
+
+.info-block p {
+  font-size: 14px;
+  color: var(--gray-600);
+  line-height: 1.6;
+  margin-bottom: var(--space-3);
+}
+
+.info-block p:last-child {
+  margin-bottom: 0;
+}
+
+/* Location buttons */
+.location-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.location-btn {
+  padding: var(--space-3) var(--space-4);
+  background: var(--gray-50);
+  border: 1px solid var(--gray-100);
+  border-radius: 4px;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.location-btn:hover {
+  background: var(--gray-100);
+}
+
+.location-btn .name {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.location-btn .desc {
+  font-size: 12px;
+  color: var(--gray-600);
+}
+
+/* Data notes list */
+.data-notes li {
+  font-size: 14px;
+  color: var(--gray-600);
+  padding: var(--space-1) 0;
+}
+
+.data-notes li::before {
+  content: "•";
+  margin-right: var(--space-2);
+  color: var(--gray-400);
+}
+
+/* Data source footer */
+.data-source {
+  font-size: 12px;
+  color: var(--gray-400);
+  margin-top: var(--space-5);
+  line-height: 1.6;
+}
+
+/* ========================================
+   Anomaly Panel
+   ======================================== */
+
+.anomaly-panel {
+  padding: var(--space-4);
+  margin-bottom: var(--space-5);
+  background: var(--gray-50);
+  border: 1px solid var(--gray-100);
+  border-radius: 4px;
+}
+
+.anomaly-panel.active {
+  background: var(--white);
+}
+
+.anomaly-panel.anomaly-increase {
+  border-color: var(--blue);
+  background: rgba(37, 99, 235, 0.05);
+}
+
+.anomaly-panel.anomaly-decrease {
+  border-color: var(--red);
+  background: rgba(220, 38, 38, 0.05);
+}
+
+.anomaly-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.anomaly-header h3 {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-400);
+  margin: 0;
+}
+
+.anomaly-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--gray-200);
+  color: var(--gray-600);
+}
+
+.anomaly-badge.normal {
+  background: var(--gray-200);
+  color: var(--gray-600);
+}
+
+.anomaly-badge.increase {
+  background: var(--blue);
+  color: var(--white);
+}
+
+.anomaly-badge.decrease {
+  background: var(--red);
+  color: var(--white);
+}
+
+.anomaly-value {
+  margin-bottom: var(--space-3);
+}
+
+.anomaly-percent {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--black);
+}
+
+.anomaly-panel.anomaly-increase .anomaly-percent {
+  color: var(--blue);
+}
+
+.anomaly-panel.anomaly-decrease .anomaly-percent {
+  color: var(--red);
+}
+
+.anomaly-direction {
+  display: block;
+  font-size: 13px;
+  color: var(--gray-600);
+  margin-top: var(--space-1);
+}
+
+.anomaly-details {
+  border-top: 1px solid var(--gray-100);
+  padding-top: var(--space-3);
+}
+
+.anomaly-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: var(--space-1) 0;
+}
+
+.anomaly-row .label {
+  color: var(--gray-400);
+}
+
+.anomaly-row .value {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--gray-600);
+}
+
+.anomaly-note {
+  font-size: 12px;
+  color: var(--gray-400);
+  margin: var(--space-3) 0 0 0;
+  font-style: italic;
+}
+
+.anomaly-panel.active .anomaly-note {
+  display: none;
+}
+
+/* ========================================
+   Status Bar
+   ======================================== */
+
+.status-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: var(--sidebar-width);
+  padding: var(--space-3) var(--space-5);
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid var(--gray-100);
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--gray-600);
+  z-index: 50;
+}
+
+.coords {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+/* ========================================
+   Loading Indicator
+   ======================================== */
+
+.loading-indicator {
+  position: fixed;
+  top: calc(var(--header-height) + var(--space-4));
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--black);
+  color: var(--white);
+  padding: var(--space-2) var(--space-4);
+  border-radius: 4px;
+  font-size: 13px;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.loading-indicator.show {
+  opacity: 1;
+}
+
+/* ========================================
+   Compare Mode Controls
+   ======================================== */
+
+.compare-toggle {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.compare-toggle:hover {
+  border-color: var(--gray-400);
+}
+
+.compare-dates {
+  display: none;
+}
+
+.compare-dates.active {
+  display: flex;
+}
+
+.date-control:not(.compare-dates).hidden {
+  display: none;
+}
+
+.compare-close {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compare-close:hover {
+  background: var(--gray-100);
+}
+
+.compare-type-toggle {
+  display: flex;
+  gap: 2px;
+  margin-left: var(--space-2);
+}
+
+.compare-type-btn {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.compare-type-btn:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.compare-type-btn:last-child {
+  border-radius: 0 4px 4px 0;
+  border-left: none;
+}
+
+.compare-type-btn:hover {
+  background: var(--gray-50);
+}
+
+.compare-type-btn.active {
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--black);
+}
+
+/* ========================================
+   Date Labels (Compare Mode Overlay)
+   ======================================== */
+
+.date-label {
+  position: absolute;
+  top: var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(10, 10, 10, 0.8);
+  color: var(--white);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 4px;
+  z-index: 10;
+  display: none;
+  pointer-events: none;
+}
+
+.date-label.before {
+  left: var(--space-4);
+}
+
+.date-label.after {
+  right: var(--space-4);
+}
+
+#map-wrapper.compare-swipe .date-label,
+#map-wrapper.compare-side-by-side .date-label {
+  display: block;
+}
+
+/* Side-by-side label positioning */
+#map-wrapper.compare-side-by-side .date-label.after {
+  right: auto;
+  left: calc(50% + var(--space-4));
+}
+
+/* ========================================
+   Compare Slider Override (Ulm aesthetic)
+   ======================================== */
+
+.maplibre-compare {
+  background: transparent;
+}
+
+.compare-swipe-vertical {
+  width: 2px !important;
+  background: var(--white) !important;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+}
+
+.compare-swipe-vertical::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: var(--white);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  cursor: ew-resize;
+}
+
+.compare-swipe-vertical::after {
+  content: '⟷';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  color: var(--gray-600);
+  pointer-events: none;
+}
+
+/* ========================================
+   Export Button & Modal
+   ======================================== */
+
+.export-btn {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--black);
+  background: var(--black);
+  color: var(--white);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.export-btn:hover {
+  background: var(--gray-800);
+}
+
+.export-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 10, 10, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+.export-modal.active {
+  display: flex;
+}
+
+.export-content {
+  background: var(--white);
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.export-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.export-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.export-close {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--gray-400);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.export-close:hover {
+  background: var(--gray-100);
+  color: var(--black);
+}
+
+.export-body {
+  padding: var(--space-5);
+}
+
+.export-section {
+  margin-bottom: var(--space-5);
+}
+
+.export-section:last-child {
+  margin-bottom: 0;
+}
+
+.export-section label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray-400);
+  margin-bottom: var(--space-2);
+}
+
+.export-link-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.export-link-row input {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--gray-200);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--gray-50);
+  color: var(--gray-600);
+}
+
+.copy-btn {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.copy-btn:hover {
+  border-color: var(--gray-400);
+}
+
+.copy-btn.copied {
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--black);
+}
+
+.export-meta {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-100);
+  border-radius: 4px;
+  padding: var(--space-3);
+}
+
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: var(--space-1) 0;
+}
+
+.meta-row span:first-child {
+  color: var(--gray-400);
+}
+
+.meta-row span:last-child {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--gray-600);
+}
+
+.download-btn {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--gray-200);
+  background: var(--white);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.download-btn:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-400);
+}
+
+/* ========================================
+   Map Controls Override
+   ======================================== */
+
+.maplibregl-ctrl-attrib {
+  font-size: 11px;
+}
+
+.maplibregl-ctrl-group {
+  border-radius: 4px;
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+
+@media (max-width: 900px) {
+  main {
+    grid-template-columns: 1fr;
+  }
+  
+  .sidebar {
+    display: none;
+  }
+  
+  .status-bar {
+    right: 0;
+  }
+}

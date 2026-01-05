@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECHO.WATCH</title>
+  <script src="https://unpkg.com/maplibre-gl@4.1.0/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@4.1.0/dist/maplibre-gl.css" rel="stylesheet" />
+  <link href="https://unpkg.com/@maplibre/maplibre-gl-compare@0.4.0/dist/maplibre-gl-compare.css" rel="stylesheet" />
+  <script src="https://unpkg.com/@maplibre/maplibre-gl-compare@0.4.0/dist/maplibre-gl-compare.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+      </div>
+      <span class="logo-text">ECHO.WATCH</span>
+    </div>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search location..." autocomplete="off">
+    </div>
+    <div class="header-controls">
+      <div class="date-control" id="dateControl">
+        <label>Date:</label>
+        <input type="date" id="dateSelect">
+        <button class="compare-toggle" id="compareToggle">+ Compare</button>
+      </div>
+      <div class="date-control compare-dates" id="compareDates">
+        <label>Before:</label>
+        <input type="date" id="beforeDate">
+        <label>After:</label>
+        <input type="date" id="afterDate">
+        <button class="compare-close" id="compareClose">×</button>
+        <div class="compare-type-toggle">
+          <button class="compare-type-btn active" data-type="swipe">Swipe</button>
+          <button class="compare-type-btn" data-type="side-by-side">Split</button>
+        </div>
+      </div>
+      <div class="layer-toggle">
+        <button class="layer-btn active" data-layer="nightlights">Night Lights</button>
+        <button class="layer-btn" data-layer="blueyellow">Blue/Yellow</button>
+      </div>
+      <button class="export-btn" id="exportBtn">Export</button>
+    </div>
+  </header>
+
+  <div class="export-modal" id="exportModal">
+    <div class="export-content">
+      <div class="export-header">
+        <h3>Export View</h3>
+        <button class="export-close" id="exportClose">×</button>
+      </div>
+      <div class="export-body">
+        <div class="export-section">
+          <label>Shareable Link</label>
+          <div class="export-link-row">
+            <input type="text" id="exportUrl" readonly>
+            <button class="copy-btn" id="copyUrl">Copy</button>
+          </div>
+        </div>
+        <div class="export-section">
+          <label>Metadata</label>
+          <div class="export-meta" id="exportMeta">
+            <div class="meta-row"><span>Location</span><span id="metaLocation">--</span></div>
+            <div class="meta-row"><span>Coordinates</span><span id="metaCoords">--</span></div>
+            <div class="meta-row"><span>Date</span><span id="metaDate">--</span></div>
+            <div class="meta-row"><span>Zoom</span><span id="metaZoom">--</span></div>
+          </div>
+        </div>
+        <div class="export-section">
+          <label>Screenshot</label>
+          <button class="download-btn" id="downloadScreenshot">Download PNG</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-indicator" id="loading">Loading satellite imagery...</div>
+
+  <main>
+    <div id="map-wrapper">
+      <div id="map"></div>
+      <div id="map-after"></div>
+      <div class="date-label before" id="labelBefore">BEFORE</div>
+      <div class="date-label after" id="labelAfter">AFTER</div>
+    </div>
+    <aside class="sidebar">
+      <div class="anomaly-panel" id="anomalyPanel">
+        <div class="anomaly-header">
+          <h3>Brightness Anomaly</h3>
+          <span class="anomaly-badge" id="anomalyBadge">--</span>
+        </div>
+        <div class="anomaly-value" id="anomalyValue">
+          <span class="anomaly-percent">--</span>
+          <span class="anomaly-direction">vs. baseline</span>
+        </div>
+        <div class="anomaly-details" id="anomalyDetails">
+          <div class="anomaly-row">
+            <span class="label">Current</span>
+            <span class="value" id="anomalyCurrent">--</span>
+          </div>
+          <div class="anomaly-row">
+            <span class="label">Baseline</span>
+            <span class="value" id="anomalyBaseline">--</span>
+          </div>
+          <div class="anomaly-row">
+            <span class="label">Reference</span>
+            <span class="value" id="anomalyReference">--</span>
+          </div>
+        </div>
+        <p class="anomaly-note">Select a location to analyze brightness patterns</p>
+      </div>
+
+      <h2>Real satellite data</h2>
+      <p>NASA VIIRS Day/Night Band imagery. The same data used to track power outages, conflicts, and economic activity.</p>
+
+      <div class="info-block">
+        <h3>Jump to location</h3>
+        <div class="location-list" id="locationList">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="info-block">
+        <h3>What you're seeing</h3>
+        <p>The VIIRS Day/Night Band captures visible light at night — city lights, fires, fishing boats, gas flares.</p>
+        <p>Brightness correlates with human activity. Sudden drops can indicate power outages, conflict damage, or economic decline.</p>
+      </div>
+
+      <div class="info-block">
+        <h3>Data notes</h3>
+        <ul class="data-notes">
+          <li>Updated daily (~24hr delay)</li>
+          <li>750m resolution</li>
+          <li>Moonlight affects brightness</li>
+          <li>Clouds obscure data</li>
+        </ul>
+      </div>
+
+      <div class="data-source">
+        Data: <a href="https://earthdata.nasa.gov/topics/human-dimensions/nighttime-lights" target="_blank">NASA VIIRS DNB</a> via GIBS<br>
+        Part of <a href="https://echocorp.xyz">ECHOCORP</a>
+      </div>
+    </aside>
+  </main>
+
+  <div class="status-bar">
+    <span id="locationInfo">Hover over map for coordinates</span>
+    <span class="coords" id="coords"></span>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
