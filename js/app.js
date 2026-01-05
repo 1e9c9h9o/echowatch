@@ -11,14 +11,15 @@ const CONFIG = {
   // NASA GIBS layer definitions
   layers: {
     nightlights: {
-      id: 'VIIRS_SNPP_DayNightBand_ENCC',
+      id: 'VIIRS_SNPP_DayNightBand_At_Sensor_Radiance',
       name: 'Night Lights',
       maxZoom: 8
     },
-    blueyellow: {
+    blackmarble: {
       id: 'VIIRS_Black_Marble',
-      name: 'Blue/Yellow',
-      maxZoom: 8
+      name: 'Black Marble',
+      maxZoom: 8,
+      staticDate: '2016-01-01' // Annual composite, not daily
     }
   },
 
@@ -140,12 +141,20 @@ function buildGIBSUrl(layerId, date) {
 }
 
 /**
- * Get a default date (2 days ago for data availability)
+ * Get a default date (use recent date with known data availability)
+ * GIBS data has ~1-2 day latency, and may not have future dates
  */
 function getDefaultDate() {
-  const date = new Date();
-  date.setDate(date.getDate() - 2);
-  return date.toISOString().split('T')[0];
+  // Use a date we know has data - fall back to late 2024 if current date might not have data
+  const now = new Date();
+  const twoWeeksAgo = new Date(now);
+  twoWeeksAgo.setDate(now.getDate() - 14);
+
+  // If we're somehow in the "future" relative to GIBS data, use a safe fallback
+  const safeDate = new Date('2024-12-15');
+  const useDate = twoWeeksAgo < safeDate ? safeDate : twoWeeksAgo;
+
+  return useDate.toISOString().split('T')[0];
 }
 
 /**
@@ -162,7 +171,9 @@ function getDateOffset(days) {
  */
 function buildMapStyle(date, layerKey = state.currentLayer) {
   const layerConfig = CONFIG.layers[layerKey];
-  const tileUrl = buildGIBSUrl(layerConfig.id, date);
+  // Use static date for layers like Black Marble that are composites
+  const effectiveDate = layerConfig.staticDate || date;
+  const tileUrl = buildGIBSUrl(layerConfig.id, effectiveDate);
 
   return {
     version: 8,
@@ -242,7 +253,8 @@ function initMap() {
 
 function updateLayer() {
   const layerConfig = CONFIG.layers[state.currentLayer];
-  const tileUrl = buildGIBSUrl(layerConfig.id, state.currentDate);
+  const effectiveDate = layerConfig.staticDate || state.currentDate;
+  const tileUrl = buildGIBSUrl(layerConfig.id, effectiveDate);
 
   // Remove existing layer and source
   if (state.map.getLayer('viirs')) {
@@ -285,7 +297,8 @@ function updateAfterMapLayer() {
   if (!state.afterMap) return;
 
   const layerConfig = CONFIG.layers[state.currentLayer];
-  const tileUrl = buildGIBSUrl(layerConfig.id, state.afterDate);
+  const effectiveDate = layerConfig.staticDate || state.afterDate;
+  const tileUrl = buildGIBSUrl(layerConfig.id, effectiveDate);
 
   if (state.afterMap.getLayer('viirs')) {
     state.afterMap.removeLayer('viirs');
