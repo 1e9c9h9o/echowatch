@@ -29,25 +29,10 @@ const CONFIG = {
   // Radiance values in nW/cm²/sr (nanowatts per square centimeter per steradian)
   locations: [
     {
-      name: 'Detroit, MI',
-      desc: 'Industrial activity monitoring',
-      lat: 42.3314,
-      lng: -83.0458,
-      zoom: 10,
-      anomaly: {
-        current: 42.3,
-        baseline: 45.8,
-        reference: '5-year avg (Jan)'
-      },
-      context: {
-        situation: 'Seasonal variation in industrial Midwest city',
-        cause: 'Minor decrease likely due to seasonal factors, weather, or industrial scheduling. Changes under 10% are typically normal fluctuation.',
-        lookFor: 'Bright clusters are automotive plants and refineries. Downtown core should remain consistently lit.'
-      }
-    },
-    {
       name: 'Gaza Strip',
-      desc: 'Conflict zone monitoring',
+      desc: 'Humanitarian crisis',
+      category: 'conflict',
+      status: 'critical',
       lat: 31.5,
       lng: 34.47,
       zoom: 10,
@@ -57,14 +42,16 @@ const CONFIG = {
         reference: 'Jan 2023'
       },
       context: {
-        situation: 'Severe infrastructure damage from ongoing conflict',
-        cause: 'Over 70% reduction indicates widespread power grid destruction, fuel shortages, and displacement. This is catastrophic-level change.',
-        lookFor: 'Compare to pre-conflict imagery. Dense urban areas like Gaza City should show dramatic darkening. Any remaining lights indicate functioning generators or undamaged areas.'
+        situation: 'Infrastructure damage from ongoing conflict',
+        cause: 'Over 70% reduction correlates with power grid damage, fuel shortages, and population displacement.',
+        lookFor: 'Compare to pre-conflict imagery. Remaining light sources typically indicate generators or areas with intact infrastructure.'
       }
     },
     {
       name: 'Kyiv, Ukraine',
-      desc: 'Infrastructure damage tracking',
+      desc: 'Wartime infrastructure',
+      category: 'conflict',
+      status: 'warning',
       lat: 50.4501,
       lng: 30.5234,
       zoom: 9,
@@ -74,48 +61,16 @@ const CONFIG = {
         reference: 'Jan 2022'
       },
       context: {
-        situation: 'Ongoing infrastructure attacks and energy rationing',
-        cause: 'A 40% decrease reflects targeted attacks on power infrastructure, rolling blackouts, and energy conservation measures during wartime.',
-        lookFor: 'Central Kyiv often maintains power. Look for darkened suburban areas and industrial zones. Compare to pre-invasion baseline (Feb 2022).'
-      }
-    },
-    {
-      name: 'Houston, TX',
-      desc: 'Hurricane recovery',
-      lat: 29.7604,
-      lng: -95.3698,
-      zoom: 9,
-      anomaly: {
-        current: 89.2,
-        baseline: 85.6,
-        reference: '5-year avg (Jan)'
-      },
-      context: {
-        situation: 'Normal urban activity, slight increase',
-        cause: 'A 4% increase is within normal range. Could indicate new development, seasonal events, or economic activity. This is healthy urban pattern.',
-        lookFor: 'Petrochemical facilities along the Ship Channel are brightest. Downtown and the Energy Corridor should be consistently bright.'
-      }
-    },
-    {
-      name: 'Los Angeles, CA',
-      desc: 'Urban light patterns',
-      lat: 34.0522,
-      lng: -118.2437,
-      zoom: 9,
-      anomaly: {
-        current: 124.8,
-        baseline: 128.3,
-        reference: '5-year avg (Jan)'
-      },
-      context: {
-        situation: 'Normal metropolitan light levels',
-        cause: 'A 3% decrease is negligible—within measurement uncertainty. LA has been implementing LED lighting which reduces total radiance while maintaining visibility.',
-        lookFor: 'The street grid pattern is visible from space. LAX, ports, and downtown are brightest. Dark patches are mountains and parks.'
+        situation: 'Infrastructure damage and energy rationing',
+        cause: 'A 40% decrease correlates with power infrastructure damage, rolling blackouts, and wartime energy conservation.',
+        lookFor: 'Central Kyiv typically maintains higher output. Suburban and industrial zones show variable reduction. Compare to Feb 2022 baseline.'
       }
     },
     {
       name: 'Puerto Rico',
-      desc: 'Grid resilience',
+      desc: 'Grid fragility post-Maria',
+      category: 'disaster',
+      status: 'warning',
       lat: 18.2208,
       lng: -66.5901,
       zoom: 9,
@@ -125,9 +80,66 @@ const CONFIG = {
         reference: 'Jan 2017 (pre-Maria)'
       },
       context: {
-        situation: 'Incomplete recovery from Hurricane Maria (2017)',
-        cause: 'Even years later, Puerto Rico shows 30% less light than pre-Maria. Reflects ongoing grid fragility, population decline, and economic challenges.',
-        lookFor: 'San Juan metro should be brightest. Rural mountainous interior may still show incomplete recovery. Compare with historical imagery.'
+        situation: 'Partial recovery from Hurricane Maria (2017)',
+        cause: 'Radiance remains approximately 30% below pre-Maria levels. Factors include grid infrastructure limitations, population changes, and economic conditions.',
+        lookFor: 'San Juan metropolitan area registers highest. Rural mountainous interior shows variable recovery. Compare with pre-2017 imagery.'
+      }
+    },
+    {
+      name: 'Houston, TX',
+      desc: 'Petrochemical corridor',
+      category: 'urban',
+      status: 'normal',
+      lat: 29.7604,
+      lng: -95.3698,
+      zoom: 9,
+      anomaly: {
+        current: 89.2,
+        baseline: 85.6,
+        reference: '5-year avg (Jan)'
+      },
+      context: {
+        situation: 'Within normal range',
+        cause: 'A 4% increase falls within typical variation. Possible factors: new development, seasonal activity, or industrial output.',
+        lookFor: 'Petrochemical facilities along the Ship Channel register highest radiance. Downtown and Energy Corridor show consistent output.'
+      }
+    },
+    {
+      name: 'Los Angeles, CA',
+      desc: 'Metropolitan basin',
+      category: 'urban',
+      status: 'normal',
+      lat: 34.0522,
+      lng: -118.2437,
+      zoom: 9,
+      anomaly: {
+        current: 124.8,
+        baseline: 128.3,
+        reference: '5-year avg (Jan)'
+      },
+      context: {
+        situation: 'Within normal range',
+        cause: 'A 3% decrease is within measurement uncertainty. LED lighting transition reduces total radiance while maintaining ground-level illumination.',
+        lookFor: 'Street grid pattern visible at this resolution. LAX, ports, and downtown register highest. Dark areas correspond to terrain and parks.'
+      }
+    },
+    {
+      name: 'Detroit, MI',
+      desc: 'Industrial Midwest',
+      category: 'urban',
+      status: 'normal',
+      lat: 42.3314,
+      lng: -83.0458,
+      zoom: 10,
+      anomaly: {
+        current: 42.3,
+        baseline: 45.8,
+        reference: '5-year avg (Jan)'
+      },
+      context: {
+        situation: 'Within normal range',
+        cause: 'Minor decrease consistent with seasonal variation, weather conditions, or industrial scheduling. Changes under 10% fall within typical fluctuation.',
+        lookFor: 'High-radiance clusters correspond to automotive plants and refineries. Downtown core maintains consistent output.'
       }
     }
   ],
@@ -140,7 +152,157 @@ const CONFIG = {
   basemap: {
     dark: 'https://basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png',
     labels: 'https://basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}.png'
-  }
+  },
+
+  // Notable Events - Documented incidents with measurable radiance changes
+  notableEvents: [
+    {
+      id: 'ukraine-invasion',
+      title: 'Ukraine Invasion',
+      subtitle: 'February 2022',
+      description: 'Following the Russian invasion in February 2022, strikes on power infrastructure caused blackouts across multiple oblasts.',
+      beforeDate: '2022-02-20',
+      afterDate: '2022-03-15',
+      lat: 50.4501,
+      lng: 30.5234,
+      zoom: 7,
+      impact: 'Measurable radiance reduction in Kyiv, Kharkiv, and surrounding regions.',
+      category: 'conflict'
+    },
+    {
+      id: 'gaza-2023',
+      title: 'Gaza Blackout',
+      subtitle: 'October 2023',
+      description: 'The Gaza Strip recorded approximately 70% radiance reduction following conflict escalation in October 2023.',
+      beforeDate: '2023-10-01',
+      afterDate: '2023-11-15',
+      lat: 31.5,
+      lng: 34.47,
+      zoom: 10,
+      impact: 'Population affected: 2.3 million. Near-complete loss of grid power.',
+      category: 'conflict'
+    },
+    {
+      id: 'hurricane-maria',
+      title: 'Hurricane Maria',
+      subtitle: 'September 2017',
+      description: 'Category 4 hurricane made landfall September 20, 2017, causing complete power grid failure across Puerto Rico.',
+      beforeDate: '2017-09-15',
+      afterDate: '2017-09-25',
+      lat: 18.2208,
+      lng: -66.5901,
+      zoom: 8,
+      impact: 'Island-wide blackout. Grid restoration completed after 11 months.',
+      category: 'disaster'
+    },
+    {
+      id: 'texas-freeze',
+      title: 'Texas Power Crisis',
+      subtitle: 'February 2021',
+      description: 'Winter storm Uri caused cascading failures in the ERCOT grid, resulting in widespread outages across Texas.',
+      beforeDate: '2021-02-10',
+      afterDate: '2021-02-17',
+      lat: 29.7604,
+      lng: -95.3698,
+      zoom: 7,
+      impact: '4.5 million homes without power at peak. Grid frequency dropped to critical levels.',
+      category: 'disaster'
+    },
+    {
+      id: 'california-wildfires-2020',
+      title: 'California Wildfires',
+      subtitle: 'August–September 2020',
+      description: 'The 2020 fire season burned 4.2 million acres. Active fires appear as point sources; evacuated areas show reduced radiance.',
+      beforeDate: '2020-08-01',
+      afterDate: '2020-09-15',
+      lat: 38.5,
+      lng: -121.5,
+      zoom: 6,
+      impact: 'Active fire signatures visible. Evacuation zones show temporary radiance decrease.',
+      category: 'disaster'
+    },
+    {
+      id: 'india-diwali',
+      title: 'Diwali Festival',
+      subtitle: 'November 2023',
+      description: 'During Diwali, decorative lighting across Indian cities produces measurable radiance increase in VIIRS data.',
+      beforeDate: '2023-11-01',
+      afterDate: '2023-11-12',
+      lat: 28.6139,
+      lng: 77.209,
+      zoom: 6,
+      impact: 'Detectable brightness increase in urban areas during festival period.',
+      category: 'cultural'
+    }
+  ],
+
+  // Discover mode - Curated locations with notable radiance patterns
+  discoverFacts: [
+    {
+      location: 'North Korea',
+      lat: 39.0392,
+      lng: 125.7625,
+      zoom: 6,
+      fact: 'North Korea records minimal nighttime radiance outside Pyongyang. The contrast with South Korea is among the most pronounced cross-border differentials globally.',
+      lookFor: 'The DMZ is delineated by radiance difference alone—no physical border features required.'
+    },
+    {
+      location: 'Fishing Fleets',
+      lat: -8.5,
+      lng: 115.5,
+      zoom: 5,
+      fact: 'Offshore light clusters are commercial fishing vessels using high-intensity lamps to attract squid. Southeast Asian waters show the highest concentration.',
+      lookFor: 'Point sources 50–200 km offshore, often in linear formations following fishing grounds.'
+    },
+    {
+      location: 'Nile River',
+      lat: 26.8206,
+      lng: 30.8025,
+      zoom: 5,
+      fact: 'Egypt\'s population is concentrated along the Nile corridor. The river valley contains >95% of the country\'s nighttime radiance.',
+      lookFor: 'Linear radiance pattern from the Mediterranean delta to Aswan, surrounded by near-zero readings.'
+    },
+    {
+      location: 'Las Vegas',
+      lat: 36.1699,
+      lng: -115.1398,
+      zoom: 9,
+      fact: 'Las Vegas registers high per-capita radiance due to concentrated commercial lighting. The resort corridor is surrounded by Mojave Desert with minimal ambient light.',
+      lookFor: 'High-intensity cluster with sharp boundary where urban development ends at desert.'
+    },
+    {
+      location: 'Trans-Siberian Railway',
+      lat: 55.0,
+      lng: 90.0,
+      zoom: 4,
+      fact: 'The 9,289 km Trans-Siberian Railway route is traceable by the chain of settlements along its path—the primary development corridor across Siberia.',
+      lookFor: 'Sequential point sources following an east-west axis across otherwise dark terrain.'
+    },
+    {
+      location: 'India-Pakistan Border',
+      lat: 31.0,
+      lng: 74.0,
+      zoom: 6,
+      fact: 'Security floodlighting along the India-Pakistan border creates a continuous linear feature visible in VIIRS data spanning approximately 3,000 km.',
+      lookFor: 'Orange-tinted linear feature extending from the Arabian Sea coast to the Kashmir region.'
+    },
+    {
+      location: 'Oil Fields of Kuwait',
+      lat: 29.3117,
+      lng: 47.4818,
+      zoom: 8,
+      fact: 'Gas flares from petroleum extraction register as high-radiance point sources. The Persian Gulf region contains numerous such signatures.',
+      lookFor: 'Isolated high-intensity points in areas with no urban development—these are extraction facilities.'
+    },
+    {
+      location: 'Amazon Deforestation',
+      lat: -8.0,
+      lng: -63.0,
+      zoom: 6,
+      fact: 'Road construction and settlement expansion in the Amazon basin create new radiance signatures in previously unlit areas. Patterns correlate with deforestation data.',
+      lookFor: 'Linear patterns extending from established corridors—characteristic "fishbone" road network signature.'
+    }
+  ]
 };
 
 // ========================================
@@ -614,19 +776,31 @@ function setupLayerToggle() {
 
 function setupLocationButtons() {
   const container = document.getElementById('locationList');
-  
+
   CONFIG.locations.forEach(loc => {
     const btn = document.createElement('button');
-    btn.className = 'location-btn';
+    btn.className = `location-btn status-${loc.status || 'normal'}`;
+    btn.dataset.category = loc.category || 'urban';
+
+    // Calculate the change percentage for the badge
+    const change = loc.anomaly
+      ? Math.round(((loc.anomaly.current - loc.anomaly.baseline) / loc.anomaly.baseline) * 100)
+      : 0;
+    const changeText = change > 0 ? `+${change}%` : `${change}%`;
+
     btn.innerHTML = `
-      <div class="name">${loc.name}</div>
-      <div class="desc">${loc.desc}</div>
+      <div class="location-status"></div>
+      <div class="location-info">
+        <div class="name">${loc.name}</div>
+        <div class="desc">${loc.desc}</div>
+      </div>
+      <div class="location-change ${change < -10 ? 'decrease' : change > 10 ? 'increase' : ''}">${changeText}</div>
     `;
-    
+
     btn.addEventListener('click', () => {
       flyToLocation(loc);
     });
-    
+
     container.appendChild(btn);
   });
 }
@@ -1257,6 +1431,298 @@ function setupMobile() {
 }
 
 // ========================================
+// Notable Events
+// ========================================
+
+function setupNotableEvents() {
+  const container = document.getElementById('eventsList');
+
+  CONFIG.notableEvents.forEach(event => {
+    const card = document.createElement('button');
+    card.className = `event-card category-${event.category}`;
+
+    const categoryLabels = {
+      'conflict': 'Conflict',
+      'disaster': 'Disaster',
+      'cultural': 'Event'
+    };
+    const badgeText = categoryLabels[event.category] || 'Compare';
+
+    card.innerHTML = `
+      <div class="event-header">
+        <div>
+          <div class="event-title">${event.title}</div>
+          <div class="event-subtitle">${event.subtitle}</div>
+        </div>
+        <span class="event-badge">${badgeText}</span>
+      </div>
+      <div class="event-description">${event.description}</div>
+      <div class="event-dates">
+        <span>${formatDate(event.beforeDate)}</span>
+        <span class="event-arrow">→</span>
+        <span>${formatDate(event.afterDate)}</span>
+      </div>
+    `;
+
+    card.addEventListener('click', () => {
+      loadNotableEvent(event);
+    });
+
+    container.appendChild(card);
+  });
+}
+
+function formatDate(dateStr) {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function loadNotableEvent(event) {
+  // First fly to the location
+  const flyOptions = {
+    center: [event.lng, event.lat],
+    zoom: event.zoom,
+    duration: 1500
+  };
+
+  state.map.flyTo(flyOptions);
+
+  // If in compare mode, exit first
+  if (state.mode !== 'single') {
+    exitCompareMode();
+  }
+
+  // Wait for fly animation, then enter compare mode with specific dates
+  setTimeout(() => {
+    // Set the dates
+    state.beforeDate = event.beforeDate;
+    state.afterDate = event.afterDate;
+
+    // Enter swipe compare mode
+    state.mode = 'swipe';
+    state.currentDate = state.beforeDate;
+
+    // Create the after map
+    const wrapper = document.getElementById('map-wrapper');
+    wrapper.classList.add('compare-swipe');
+
+    // Update main map with before date
+    updateLayer();
+
+    state.afterMap = new maplibregl.Map({
+      container: 'map-after',
+      style: buildMapStyle(state.afterDate),
+      center: state.map.getCenter(),
+      zoom: state.map.getZoom(),
+      bearing: state.map.getBearing(),
+      pitch: state.map.getPitch(),
+      maxZoom: 12
+    });
+
+    state.afterMap.on('load', () => {
+      initSwipeCompare();
+    });
+
+    updateDateLabels();
+    updateCompareUI(true);
+
+    // Update location info
+    document.getElementById('locationInfo').textContent = event.title;
+
+    // Show impact message
+    showImpactToast(event);
+
+  }, 1600);
+
+  // Close sidebar on mobile
+  if (window.innerWidth <= 900) {
+    document.querySelector('.sidebar').classList.remove('mobile-open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+  }
+}
+
+function showImpactToast(event) {
+  // Remove existing toast if any
+  const existing = document.querySelector('.impact-toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'impact-toast';
+  toast.innerHTML = `
+    <div class="toast-content">
+      <strong>${event.title}</strong>
+      <p>${event.impact}</p>
+      <span class="toast-hint">Use slider to compare dates</span>
+    </div>
+  `;
+
+  document.body.appendChild(toast);
+
+  // Animate in
+  setTimeout(() => toast.classList.add('visible'), 100);
+
+  // Auto-dismiss after 6 seconds
+  setTimeout(() => {
+    toast.classList.remove('visible');
+    setTimeout(() => toast.remove(), 300);
+  }, 6000);
+
+  // Click to dismiss
+  toast.addEventListener('click', () => {
+    toast.classList.remove('visible');
+    setTimeout(() => toast.remove(), 300);
+  });
+}
+
+// ========================================
+// Discover Mode
+// ========================================
+
+let lastDiscoverIndex = -1;
+
+function setupDiscover() {
+  const discoverBtn = document.getElementById('discoverBtn');
+  const discoverCard = document.getElementById('discoverCard');
+  const discoverClose = document.getElementById('discoverClose');
+  const discoverAnother = document.getElementById('discoverAnother');
+
+  discoverBtn.addEventListener('click', () => {
+    showRandomDiscover();
+  });
+
+  discoverClose.addEventListener('click', () => {
+    discoverCard.classList.add('hidden');
+  });
+
+  discoverAnother.addEventListener('click', () => {
+    showRandomDiscover();
+  });
+}
+
+function showRandomDiscover() {
+  const facts = CONFIG.discoverFacts;
+  const discoverCard = document.getElementById('discoverCard');
+
+  // Get a random fact that's different from the last one
+  let index;
+  do {
+    index = Math.floor(Math.random() * facts.length);
+  } while (index === lastDiscoverIndex && facts.length > 1);
+
+  lastDiscoverIndex = index;
+  const fact = facts[index];
+
+  // Update the card
+  document.getElementById('discoverLocation').textContent = fact.location;
+  document.getElementById('discoverFact').textContent = fact.fact;
+  document.getElementById('discoverLookFor').textContent = fact.lookFor;
+
+  // Show the card
+  discoverCard.classList.remove('hidden');
+
+  // Fly to the location
+  state.map.flyTo({
+    center: [fact.lng, fact.lat],
+    zoom: fact.zoom,
+    duration: 2000
+  });
+
+  // Update location info
+  document.getElementById('locationInfo').textContent = fact.location;
+
+  // Exit compare mode if active
+  if (state.mode !== 'single') {
+    exitCompareMode();
+  }
+
+  // Close sidebar on mobile
+  if (window.innerWidth <= 900) {
+    document.querySelector('.sidebar').classList.remove('mobile-open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+  }
+}
+
+// ========================================
+// Guide Card (Collapsible)
+// ========================================
+
+function setupGuide() {
+  const guideCard = document.getElementById('guideCard');
+  const guideHeader = guideCard.querySelector('.guide-header');
+
+  // Check if user has collapsed it before
+  const isCollapsed = localStorage.getItem('echowatch_guide_collapsed') === 'true';
+
+  if (isCollapsed) {
+    guideCard.classList.add('collapsed');
+  }
+
+  guideHeader.addEventListener('click', () => {
+    guideCard.classList.toggle('collapsed');
+    localStorage.setItem('echowatch_guide_collapsed', guideCard.classList.contains('collapsed'));
+  });
+}
+
+// ========================================
+// Welcome Modal
+// ========================================
+
+function setupWelcome() {
+  const modal = document.getElementById('welcomeModal');
+  const closeBtn = document.getElementById('welcomeClose');
+  const startBtn = document.getElementById('welcomeStart');
+  const tourBtn = document.getElementById('welcomeTour');
+  const dontShowCheckbox = document.getElementById('welcomeDontShow');
+
+  // Check if user has dismissed the welcome before
+  const hasSeenWelcome = localStorage.getItem('echowatch_welcome_dismissed');
+
+  if (hasSeenWelcome) {
+    modal.classList.add('hidden');
+    return;
+  }
+
+  function closeWelcome() {
+    modal.classList.add('hidden');
+
+    // Save preference if checkbox is checked
+    if (dontShowCheckbox.checked) {
+      localStorage.setItem('echowatch_welcome_dismissed', 'true');
+    }
+  }
+
+  closeBtn.addEventListener('click', closeWelcome);
+  startBtn.addEventListener('click', closeWelcome);
+
+  // Tour button - load Hurricane Maria as example event
+  tourBtn.addEventListener('click', () => {
+    closeWelcome();
+    // Wait for modal to close, then load example event
+    setTimeout(() => {
+      // Hurricane Maria demonstrates clear before/after radiance change
+      const event = CONFIG.notableEvents.find(e => e.id === 'hurricane-maria');
+      if (event) {
+        loadNotableEvent(event);
+      }
+    }, 500);
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+      closeWelcome();
+    }
+  });
+
+  // Close on backdrop click
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeWelcome();
+    }
+  });
+}
+
+// ========================================
 // Initialize
 // ========================================
 
@@ -1269,6 +1735,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setupSearch();
   setupExport();
   setupMobile();
+  setupGuide();
+  setupNotableEvents();
+  setupDiscover();
+  setupWelcome();
 
   // Check for URL hash state after map loads
   state.map.on('load', () => {
