@@ -791,6 +791,11 @@ function updateAnomalyPanel(location) {
   const markerPosition = Math.max(0, Math.min(100, 50 - (analysis.percentChange)));
   scaleMarker.style.left = `${markerPosition}%`;
 
+  // Update news link
+  const newsLink = document.getElementById('newsLink');
+  const searchTerms = `${location.name} ${analysis.isSignificant ? (analysis.direction === 'decrease' ? 'power outage blackout' : 'lights activity') : 'news'}`;
+  newsLink.href = `https://news.google.com/search?q=${encodeURIComponent(searchTerms)}&hl=en`;
+
   // Store current location
   state.currentLocation = location;
 }
@@ -830,16 +835,35 @@ function clearAnomalyPanel() {
 /**
  * Search for a location using Nominatim
  */
-async function searchLocation(query) {
-  if (!query.trim()) return;
+// Debounce helper
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+// Search for locations with autocomplete
+async function searchLocations(query) {
+  if (!query.trim() || query.length < 2) {
+    hideSearchResults();
+    return;
+  }
+
+  const resultsEl = document.getElementById('searchResults');
+  resultsEl.innerHTML = '<div class="search-loading">Searching...</div>';
+  resultsEl.classList.add('active');
+
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`;
 
   try {
     const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'ECHO.WATCH/1.0'
-      }
+      headers: { 'User-Agent': 'ECHO.WATCH/1.0' }
     });
 
     if (!response.ok) throw new Error('Search failed');
@@ -847,43 +871,103 @@ async function searchLocation(query) {
     const results = await response.json();
 
     if (results.length === 0) {
-      document.getElementById('locationInfo').textContent = 'Location not found';
+      resultsEl.innerHTML = '<div class="search-loading">No results found</div>';
       return;
     }
 
-    const result = results[0];
-    const lat = parseFloat(result.lat);
-    const lon = parseFloat(result.lon);
+    resultsEl.innerHTML = results.map((result, i) => `
+      <div class="search-result-item" data-index="${i}">
+        <div class="result-name">${result.display_name.split(',')[0]}</div>
+        <div class="result-detail">${result.display_name.split(',').slice(1, 3).join(',')}</div>
+      </div>
+    `).join('');
 
-    // Determine zoom based on place type
-    let zoom = 10;
-    if (result.type === 'country') zoom = 5;
-    else if (result.type === 'state' || result.type === 'region') zoom = 7;
-    else if (result.type === 'city' || result.type === 'town') zoom = 10;
-    else if (result.type === 'village' || result.type === 'suburb') zoom = 12;
-
-    // Fly to location
-    flyToLocation({
-      lat: lat,
-      lng: lon,
-      zoom: Math.min(zoom, 12), // Respect maxZoom
-      name: result.display_name.split(',')[0] // Short name
-    });
+    // Store results for click handling
+    resultsEl.searchResults = results;
 
   } catch (error) {
     console.error('Geocoding error:', error);
-    document.getElementById('locationInfo').textContent = 'Search error';
+    resultsEl.innerHTML = '<div class="search-loading">Search error</div>';
   }
+}
+
+function selectSearchResult(result) {
+  const lat = parseFloat(result.lat);
+  const lon = parseFloat(result.lon);
+
+  // Determine zoom based on place type
+  let zoom = 10;
+  if (result.type === 'country') zoom = 5;
+  else if (result.type === 'state' || result.type === 'region') zoom = 7;
+  else if (result.type === 'city' || result.type === 'town') zoom = 10;
+  else if (result.type === 'village' || result.type === 'suburb') zoom = 12;
+
+  const shortName = result.display_name.split(',')[0];
+
+  // Fly to location with generated context
+  flyToLocation({
+    lat: lat,
+    lng: lon,
+    zoom: Math.min(zoom, 12),
+    name: shortName,
+    desc: result.display_name.split(',').slice(1, 2).join('').trim()
+  });
+
+  hideSearchResults();
+  document.getElementById('searchInput').value = shortName;
+}
+
+function hideSearchResults() {
+  const resultsEl = document.getElementById('searchResults');
+  resultsEl.classList.remove('active');
+  resultsEl.innerHTML = '';
 }
 
 function setupSearch() {
   const searchInput = document.getElementById('searchInput');
+  const resultsEl = document.getElementById('searchResults');
 
+  // Debounced search on input
+  const debouncedSearch = debounce(searchLocations, 300);
+  searchInput.addEventListener('input', (e) => {
+    debouncedSearch(e.target.value);
+  });
+
+  // Handle Enter key
   searchInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      searchLocation(searchInput.value);
+      const results = resultsEl.searchResults;
+      if (results && results.length > 0) {
+        selectSearchResult(results[0]);
+      }
       searchInput.blur();
+    } else if (e.key === 'Escape') {
+      hideSearchResults();
+      searchInput.blur();
+    }
+  });
+
+  // Handle result clicks
+  resultsEl.addEventListener('click', (e) => {
+    const item = e.target.closest('.search-result-item');
+    if (item && resultsEl.searchResults) {
+      const index = parseInt(item.dataset.index);
+      selectSearchResult(resultsEl.searchResults[index]);
+    }
+  });
+
+  // Hide results on outside click
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-box')) {
+      hideSearchResults();
+    }
+  });
+
+  // Show results on focus if there's text
+  searchInput.addEventListener('focus', () => {
+    if (searchInput.value.length >= 2) {
+      searchLocations(searchInput.value);
     }
   });
 }
@@ -1134,6 +1218,45 @@ function setupExport() {
 }
 
 // ========================================
+// Mobile Support
+// ========================================
+
+function setupMobile() {
+  const menuBtn = document.getElementById('mobileMenuBtn');
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const headerControls = document.querySelector('.header-controls');
+
+  // Toggle sidebar on menu button click
+  menuBtn.addEventListener('click', () => {
+    sidebar.classList.toggle('mobile-open');
+    overlay.classList.toggle('active');
+  });
+
+  // Close sidebar on overlay click
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('mobile-open');
+    overlay.classList.remove('active');
+  });
+
+  // Close sidebar when clicking a location button (mobile UX)
+  document.querySelectorAll('.location-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (window.innerWidth <= 900) {
+        sidebar.classList.remove('mobile-open');
+        overlay.classList.remove('active');
+      }
+    });
+  });
+
+  // Toggle header controls visibility on mobile
+  // Reuse menu button for header controls on very small screens
+  menuBtn.addEventListener('dblclick', () => {
+    headerControls.classList.toggle('mobile-visible');
+  });
+}
+
+// ========================================
 // Initialize
 // ========================================
 
@@ -1145,6 +1268,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupCompareControls();
   setupSearch();
   setupExport();
+  setupMobile();
 
   // Check for URL hash state after map loads
   state.map.on('load', () => {

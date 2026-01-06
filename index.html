@@ -12,6 +12,9 @@
 </head>
 <body>
   <header>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+      <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+    </button>
     <div class="logo">
       <div class="logo-mark">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
@@ -19,7 +22,8 @@
       <span class="logo-text">ECHO.WATCH</span>
     </div>
     <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Search location..." autocomplete="off">
+      <input type="text" id="searchInput" placeholder="Search any location..." autocomplete="off">
+      <div class="search-results" id="searchResults"></div>
     </div>
     <div class="header-controls">
       <div class="date-control" id="dateControl">
@@ -79,6 +83,8 @@
 
   <div class="loading-indicator" id="loading">Loading satellite imagery...</div>
 
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <main>
     <div id="map-wrapper">
       <div id="map"></div>
@@ -123,6 +129,12 @@
             </div>
           </div>
           <div class="context-cause" id="contextCause"></div>
+          <div class="context-news" id="contextNews">
+            <a href="#" id="newsLink" target="_blank" class="news-link">
+              <span class="news-icon">📰</span>
+              Search related news
+            </a>
+          </div>
         </div>
         <p class="anomaly-note" id="anomalyNote">Select a location to analyze brightness patterns</p>
       </div>
