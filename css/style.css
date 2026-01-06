@@ -479,6 +479,95 @@ main {
   display: none;
 }
 
+/* Context interpretation */
+.anomaly-context {
+  display: none;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--gray-100);
+}
+
+.anomaly-panel.active .anomaly-context {
+  display: block;
+}
+
+.context-interpretation {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--gray-800);
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  background: var(--gray-50);
+  border-radius: 4px;
+}
+
+.context-interpretation strong {
+  color: var(--black);
+}
+
+.context-interpretation.severity-severe {
+  background: rgba(220, 38, 38, 0.1);
+  border-left: 3px solid var(--red);
+}
+
+.context-interpretation.severity-moderate {
+  background: rgba(234, 179, 8, 0.1);
+  border-left: 3px solid #eab308;
+}
+
+.context-interpretation.severity-normal {
+  background: rgba(34, 197, 94, 0.1);
+  border-left: 3px solid #22c55e;
+}
+
+/* Scale bar */
+.context-scale {
+  margin-bottom: var(--space-3);
+}
+
+.scale-bar {
+  height: 8px;
+  background: linear-gradient(to right,
+    var(--red) 0%,
+    var(--gray-200) 50%,
+    var(--blue) 100%
+  );
+  border-radius: 4px;
+  position: relative;
+}
+
+.scale-marker {
+  position: absolute;
+  top: -4px;
+  width: 4px;
+  height: 16px;
+  background: var(--black);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  transition: left 0.3s ease;
+}
+
+.scale-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--gray-400);
+  margin-top: var(--space-1);
+}
+
+/* Context cause/explanation */
+.context-cause {
+  font-size: 12px;
+  color: var(--gray-600);
+  line-height: 1.5;
+}
+
+.context-cause strong {
+  color: var(--gray-800);
+  display: block;
+  margin-bottom: var(--space-1);
+}
+
 /* ========================================
    Status Bar
    ======================================== */

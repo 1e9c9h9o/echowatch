@@ -25,7 +25,7 @@ const CONFIG = {
     }
   },
 
-  // Preset locations with mock anomaly data
+  // Preset locations with anomaly data and context
   // Radiance values in nW/cm²/sr (nanowatts per square centimeter per steradian)
   locations: [
     {
@@ -38,6 +38,11 @@ const CONFIG = {
         current: 42.3,
         baseline: 45.8,
         reference: '5-year avg (Jan)'
+      },
+      context: {
+        situation: 'Seasonal variation in industrial Midwest city',
+        cause: 'Minor decrease likely due to seasonal factors, weather, or industrial scheduling. Changes under 10% are typically normal fluctuation.',
+        lookFor: 'Bright clusters are automotive plants and refineries. Downtown core should remain consistently lit.'
       }
     },
     {
@@ -50,6 +55,11 @@ const CONFIG = {
         current: 8.2,
         baseline: 28.4,
         reference: 'Jan 2023'
+      },
+      context: {
+        situation: 'Severe infrastructure damage from ongoing conflict',
+        cause: 'Over 70% reduction indicates widespread power grid destruction, fuel shortages, and displacement. This is catastrophic-level change.',
+        lookFor: 'Compare to pre-conflict imagery. Dense urban areas like Gaza City should show dramatic darkening. Any remaining lights indicate functioning generators or undamaged areas.'
       }
     },
     {
@@ -62,6 +72,11 @@ const CONFIG = {
         current: 31.5,
         baseline: 52.1,
         reference: 'Jan 2022'
+      },
+      context: {
+        situation: 'Ongoing infrastructure attacks and energy rationing',
+        cause: 'A 40% decrease reflects targeted attacks on power infrastructure, rolling blackouts, and energy conservation measures during wartime.',
+        lookFor: 'Central Kyiv often maintains power. Look for darkened suburban areas and industrial zones. Compare to pre-invasion baseline (Feb 2022).'
       }
     },
     {
@@ -74,6 +89,11 @@ const CONFIG = {
         current: 89.2,
         baseline: 85.6,
         reference: '5-year avg (Jan)'
+      },
+      context: {
+        situation: 'Normal urban activity, slight increase',
+        cause: 'A 4% increase is within normal range. Could indicate new development, seasonal events, or economic activity. This is healthy urban pattern.',
+        lookFor: 'Petrochemical facilities along the Ship Channel are brightest. Downtown and the Energy Corridor should be consistently bright.'
       }
     },
     {
@@ -86,6 +106,11 @@ const CONFIG = {
         current: 124.8,
         baseline: 128.3,
         reference: '5-year avg (Jan)'
+      },
+      context: {
+        situation: 'Normal metropolitan light levels',
+        cause: 'A 3% decrease is negligible—within measurement uncertainty. LA has been implementing LED lighting which reduces total radiance while maintaining visibility.',
+        lookFor: 'The street grid pattern is visible from space. LAX, ports, and downtown are brightest. Dark patches are mountains and parks.'
       }
     },
     {
@@ -98,6 +123,11 @@ const CONFIG = {
         current: 22.1,
         baseline: 31.4,
         reference: 'Jan 2017 (pre-Maria)'
+      },
+      context: {
+        situation: 'Incomplete recovery from Hurricane Maria (2017)',
+        cause: 'Even years later, Puerto Rico shows 30% less light than pre-Maria. Reflects ongoing grid fragility, population decline, and economic challenges.',
+        lookFor: 'San Juan metro should be brightest. Rural mountainous interior may still show incomplete recovery. Compare with historical imagery.'
       }
     }
   ],
@@ -722,6 +752,45 @@ function updateAnomalyPanel(location) {
   baselineEl.textContent = `${anomalyData.baseline} nW/cm²/sr`;
   referenceEl.textContent = anomalyData.reference;
 
+  // Update context interpretation
+  const interpretationEl = document.getElementById('contextInterpretation');
+  const scaleMarker = document.getElementById('scaleMarker');
+  const causeEl = document.getElementById('contextCause');
+
+  // Determine severity based on percentage change
+  let severity = 'normal';
+  let interpretation = '';
+
+  const absChange = Math.abs(analysis.percentChange);
+  if (absChange > 30) {
+    severity = 'severe';
+    interpretation = `<strong>Significant change detected.</strong> `;
+  } else if (absChange > 10) {
+    severity = 'moderate';
+    interpretation = `<strong>Notable change.</strong> `;
+  } else {
+    severity = 'normal';
+    interpretation = `<strong>Within normal range.</strong> `;
+  }
+
+  // Add location-specific context if available
+  if (location.context) {
+    interpretation += location.context.situation;
+    interpretationEl.innerHTML = interpretation;
+    causeEl.innerHTML = `<strong>What's happening:</strong> ${location.context.cause}<br><br><strong>What to look for:</strong> ${location.context.lookFor}`;
+  } else {
+    interpretation += `A ${absChange.toFixed(0)}% ${analysis.direction === 'increase' ? 'increase' : 'decrease'} in nighttime light output.`;
+    interpretationEl.innerHTML = interpretation;
+    causeEl.innerHTML = '<strong>What to look for:</strong> Bright spots indicate populated areas, industry, and infrastructure. Dark areas may be rural, unpopulated, or experiencing outages.';
+  }
+
+  // Set severity class
+  interpretationEl.className = 'context-interpretation severity-' + severity;
+
+  // Position scale marker (clamp between 0% and 100%, center is 50% = no change)
+  const markerPosition = Math.max(0, Math.min(100, 50 - (analysis.percentChange)));
+  scaleMarker.style.left = `${markerPosition}%`;
+
   // Store current location
   state.currentLocation = location;
 }
@@ -744,6 +813,12 @@ function clearAnomalyPanel() {
   document.getElementById('anomalyCurrent').textContent = '--';
   document.getElementById('anomalyBaseline').textContent = '--';
   document.getElementById('anomalyReference').textContent = '--';
+
+  // Clear context elements
+  document.getElementById('contextInterpretation').innerHTML = '';
+  document.getElementById('contextInterpretation').className = 'context-interpretation';
+  document.getElementById('contextCause').innerHTML = '';
+  document.getElementById('scaleMarker').style.left = '50%';
 
   state.currentLocation = null;
 }
